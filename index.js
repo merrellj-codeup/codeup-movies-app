@@ -2,51 +2,7 @@ import favorites from 'https://merrellj-codeup.github.io/codeup-movies-app/favor
 
 console.log(favorites);
 
-$(document).ready(function(){
-	let zindex=10;
-	$('[data-featured="center"]').nextAll().each(function(){
-    $(this).css('z-index', zindex);
-    zindex--;
-  });
-});
-$('.featured-movie-3d-parent[data-movie]').each(async function(){
-    try {
-    let movieID = $(this).attr('data-movie');
-    let movie = await getMovie(movieID);
-    $(this).find('.movie-poster').attr('src', `https://image.tmdb.org/t/p/original${movie.poster_path}`)
-    $(this).find('.movie-poster').attr('srcset', '');
-    $(this).find('h3').text(movie.original_title);
-    $(this).find('.featured-movie-description').text(movie.overview);
-    let moreActorsCount = 0;
-    let cast = movie.credits.cast.map((actor, index) => {
-      if (index > 4){
-        moreActorsCount++;
-        if (index == (movie.credits.cast.length - 1) ) {
-          let moreCountCircle = `
-            <div class="cast-avatar-wrapper more">
-              <div>${moreActorsCount}+</div>
-            </div>`;
-          return moreCountCircle;
-        }
-        return
-      }
-      else {
-        let actorProfile = `
-          <div class="cast-avatar-wrapper">
-            <img src="https://image.tmdb.org/t/p/original${actor.profile_path}" alt="${actor.name}" class="cast-avatar" />
-          </div>`;
-        return actorProfile;
-      }
-    });
-    $(this).find('.cast-wrapper').html(cast);
-  }
-  catch(err){
-      console.log(err);
-  }
-  finally{
-      $('.featured-movie-3d-parent').css('opacity', '100');
-  }
-});
+initFavorites();
 
 $(document).on('click', '.featured-movie-3d-parent', function(){
 	$(this).attr('data-featured', 'center');
@@ -77,6 +33,7 @@ $(document).on('click', '.featured-movie-3d-parent', function(){
   $(this).removeClass('left');
   $(this).children('.featured-movie-3d-child').removeClass('left');
 });
+
 $("body").keydown(function(e) {
   if(e.keyCode == 37) { // left
     $('[data-featured="center"').prev().trigger('click');
@@ -85,6 +42,53 @@ $("body").keydown(function(e) {
     $('[data-featured="center"').next().trigger('click');
   }
 });
+
+async function initFavorites(){
+    let zindex=10;
+	$('[data-featured="center"]').nextAll().each(function(){
+        $(this).css('z-index', zindex);
+        zindex--;
+    });
+
+    $('.featured-movie-3d-parent[data-movie]').each(async function(){
+        try {
+        let movieID = $(this).attr('data-movie');
+        let movie = await getMovie(movieID);
+        $(this).find('.movie-poster').attr('src', `https://image.tmdb.org/t/p/original${movie.poster_path}`)
+        $(this).find('.movie-poster').attr('srcset', '');
+        $(this).find('h3').text(movie.original_title);
+        $(this).find('.featured-movie-description').text(movie.overview);
+        let moreActorsCount = 0;
+        let cast = movie.credits.cast.map((actor, index) => {
+          if (index > 4){
+            moreActorsCount++;
+            if (index == (movie.credits.cast.length - 1) ) {
+              let moreCountCircle = `
+                <div class="cast-avatar-wrapper more">
+                  <div>${moreActorsCount}+</div>
+                </div>`;
+              return moreCountCircle;
+            }
+            return
+          }
+          else {
+            let actorProfile = `
+              <div class="cast-avatar-wrapper">
+                <img src="https://image.tmdb.org/t/p/original${actor.profile_path}" alt="${actor.name}" class="cast-avatar" />
+              </div>`;
+            return actorProfile;
+          }
+        });
+        $(this).find('.cast-wrapper').html(cast);
+      }
+      catch(err){
+          console.log(err);
+      }
+      finally{
+          $('.featured-movie-3d-parent').css('opacity', '100');
+      }
+    });
+}
 
 async function getMovie(movie){
 	let requestOptions = {
