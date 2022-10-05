@@ -138,4 +138,4 @@ async function getMovieVideos(movie){
   catch(err){
   	console.log(err);
   }
-}
+} 
